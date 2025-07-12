@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import { afterEach } from 'mocha';
-import { EOL } from 'os';
+import { EOL } from '../../utils/storage-utils';
 import path from 'path';
 import {
   cleanCsvStorage,

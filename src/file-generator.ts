@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { EOL } from 'os';
+import { EOL } from './utils/storage-utils';
 import path from 'path';
 import { workspace, window } from 'vscode';
 import { CsvStructure } from './model';
@@ -66,6 +66,12 @@ export class FileGenerator {
       }
     } else {
       try {
+        // 默认放置文件在 .vscode 目录
+        const dirname = path.dirname(this.absoluteReviewFilePath);
+        if (dirname.endsWith('.vscode')) {
+          fs.mkdirSync(dirname);
+        }
+
         fs.writeFileSync(this.absoluteReviewFilePath, `${CsvStructure.headerLine}${EOL}`);
         window.showInformationMessage(`Code review file: '${this.absoluteReviewFilePath}' successfully created.`);
       } catch (err) {

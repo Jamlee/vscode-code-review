@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { WorkspaceFolder, Position, Range, TextEditor } from 'vscode';
-import { EOL } from 'os';
+import { EOL } from './storage-utils';
 import { CsvEntry } from '../model';
 
 /**

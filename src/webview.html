@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>Add code review note</title>
+    <title>添加代码评审注释</title>
 
     <style>
-      /* Style inputs */
+      /* 输入框样式 */
       input,
       select,
       textarea {
@@ -48,6 +46,7 @@
         vertical-align: middle;
         user-select: none;
       }
+
       .action-btn:disabled {
         background-color: rgb(239, 240, 241);
         cursor: not-allowed;
@@ -58,6 +57,7 @@
         color: var(--vscode-button-foreground);
         background-color: var(--vscode-button-background);
       }
+
       .primary:hover {
         background-color: var(--vscode-button-hoverBackground);
       }
@@ -66,17 +66,19 @@
         color: var(--vscode-button-secondaryForeground);
         background-color: var(--vscode-button-secondaryBackground);
       }
+
       .secondary:hover {
         background-color: var(--vscode-button-secondaryHoverBackground);
       }
 
-      /* button group with CTAs */
+      /* 按钮组 */
       .actions {
         padding-top: 1em;
         display: flex;
         justify-content: space-between;
         gap: 1em;
       }
+
       .actions-left {
         display: flex;
         gap: 1em;
@@ -86,7 +88,7 @@
         visibility: hidden;
       }
 
-      /* traffic light */
+      /* 优先级选择器（红绿灯） */
       #traffic-light {
         display: block;
         background-color: #333;
@@ -94,6 +96,7 @@
         height: 130px;
         border-radius: 15px;
       }
+
       input.traffic-light-color {
         appearance: none;
         position: relative;
@@ -109,29 +112,35 @@
         user-select: none;
         outline: none;
       }
+
       input#prio-3 {
         background-color: #b30000;
       }
+
       input#prio-3:checked {
         background-color: #ff0000;
         box-shadow: 0 0 3em #ff3333;
       }
+
       input#prio-2 {
         background-color: #b2b300;
       }
+
       input#prio-2:checked {
         background-color: #ffff00;
         box-shadow: 0 0 3em #ffff33;
       }
+
       input#prio-1 {
         background-color: #00b300;
       }
+
       input#prio-1:checked {
         background-color: #00ff00;
         box-shadow: 0 0 3em #33ff33;
       }
 
-      /* form arrangement */
+      /* 表单布局 */
       .form-container {
         display: flex;
       }
@@ -144,45 +153,39 @@
   </head>
 
   <body>
-    <h2>FILENAME</h2>
-
-    <!--<h3>LINES</h3>-->
+    <h2>{{filename}}</h2>
 
     <form class="note-form">
       <div class="form-container">
         <div class="col-left">
-          <label for="title">Title</label>
+          <label for="title">标题</label>
+          <input id="title" name="title" type="text" placeholder="简短描述（例如：'方法过于复杂'）" />
 
-          <input id="title" name="title" type="text" placeholder="A short description (e.g. 'Method too complex')" />
-
-          <label for="category">Category</label>
-
+          <label for="category">类别</label>
           <select id="category" name="category">
             <option value=""></option>
-            SELECT_LIST_STRING
+            {{{categories}}}
           </select>
 
-          <label for="comment">Description</label>
-
+          <label for="comment">详细描述</label>
           <textarea
             id="comment"
             name="comment"
-            placeholder="A detailed description (e.g. 'Split method into smaller functions and utils')"
+            placeholder="详细说明（例如：'将方法拆分为更小的函数和工具类'）"
             rows="5"
           ></textarea>
 
-          <label for="additional">Additional Info</label>
-
+          <label for="additional">附加信息</label>
           <input
             id="additional"
             name="additional"
             type="text"
-            placeholder="An additional info or link (e.g. 'http://example.com')"
+            placeholder="附加信息或链接（例如：'http://example.com'）"
           />
         </div>
 
         <div class="col-right">
-          <label id="priority">Priority</label>
+          <label id="priority">优先级</label>
 
           <div id="traffic-light" role="radiogroup" aria-labelledby="priority" tabindex="0">
             <input
@@ -191,7 +194,7 @@
               name="traffic-light-color"
               id="prio-3"
               value="3"
-              aria-label="Priority: high"
+              aria-label="优先级：高"
             />
 
             <input
@@ -200,7 +203,7 @@
               name="traffic-light-color"
               id="prio-2"
               value="2"
-              aria-label="Priority: middle"
+              aria-label="优先级：中"
             />
 
             <input
@@ -209,19 +212,13 @@
               name="traffic-light-color"
               id="prio-1"
               value="1"
-              aria-label="Priority: low"
+              aria-label="优先级：低"
             />
           </div>
 
           <p>
-            <label for="private">Private</label>
-
-            <input
-              id="private"
-              name="private"
-              type="checkbox"
-              title="Make comment private to keep it for your eyes only"
-            />
+            <label for="private">私有</label>
+            <input id="private" name="private" type="checkbox" title="设为私有注释，仅自己可见" />
           </p>
         </div>
       </div>
@@ -234,9 +231,9 @@
             id="add"
             role="button"
             onclick="addNote()"
-            title="Save comment (Ctrl+Return)"
+            title="保存注释（Ctrl+回车）"
           >
-            Add Note
+            添加注释
           </button>
 
           <button
@@ -244,9 +241,9 @@
             tabindex="0"
             role="button"
             onclick="cancel()"
-            title="Abort comment changes (Ctrl+Esc)"
+            title="取消更改（Ctrl+Esc）"
           >
-            Cancel
+            取消
           </button>
         </div>
 
@@ -256,109 +253,113 @@
           id="delete-button"
           role="button"
           onclick="deleteComment()"
-          title="Delete this comment (Ctrl+Delete)"
+          title="删除此注释（Ctrl+Delete）"
         >
-          Delete
+          删除
         </button>
       </div>
     </form>
-  </body>
 
-  <script>
-    const vscode = acquireVsCodeApi();
+    <script>
+      const vscode = acquireVsCodeApi();
 
-    window.addEventListener('message', (event) => {
-      document.getElementById('delete-button').style.visibility = 'visible';
-      document.getElementById('add').innerHTML = 'Update';
-      document.getElementById('add').disabled = false;
-      document.getElementById('title').value = event.data.comment.title || '';
-      document.getElementById('comment').value = event.data.comment.comment || '';
-      document.getElementById('additional').value = event.data.comment.additional || '';
-      document.getElementById('category').value = event.data.comment.category;
-      document.getElementById('private').checked = Number(event.data.comment.private) !== 0;
+      // 接收VS Code消息（编辑已有注释时）
+      window.addEventListener('message', (event) => {
+        document.getElementById('delete-button').style.visibility = 'visible';
+        document.getElementById('add').innerHTML = '更新';
+        document.getElementById('add').disabled = false;
+        document.getElementById('title').value = event.data.comment.title || '';
+        document.getElementById('comment').value = event.data.comment.comment || '';
+        document.getElementById('additional').value = event.data.comment.additional || '';
+        document.getElementById('category').value = event.data.comment.category;
+        document.getElementById('private').checked = Number(event.data.comment.private) !== 0;
 
-      if (event.data.comment.priority) {
-        document.getElementById('prio-' + event.data.comment.priority).checked = true;
-      }
-    });
-
-    const KEYCODE_ENTER = 13;
-    const KEYCODE_ESC = 27;
-    const KEYCODE_DELETE = 46;
-
-    // Intercept keystrokes
-    document.addEventListener(
-      'keydown',
-      (event) => {
-        if (event.ctrlKey && !event.shiftKey && !event.altKey) {
-          switch (event.keyCode) {
-            case KEYCODE_ENTER:
-              // Ctrl+Return: comment validation
-              if (!document.getElementById('add').disabled) {
-                event.stopPropagation();
-                addNote();
-              }
-              break;
-
-            case KEYCODE_ESC:
-              // Ctrl+Esc: comment abort
-              cancel();
-              break;
-
-            case KEYCODE_DELETE:
-              // Ctrl+Delete: delete comment
-              deleteComment();
-              break;
-          }
+        if (event.data.comment.priority) {
+          document.getElementById('prio-' + event.data.comment.priority).checked = true;
         }
-      },
-      false,
-    );
-
-    // Give focus to the comment to allow immediate typing.
-    document.getElementById('comment').focus();
-
-    function addNote() {
-      const title = document.getElementById('title').value;
-      const comment = document.getElementById('comment').value;
-      const trafficLightEl = document.querySelector('input[name=traffic-light-color]:checked');
-      const priority = trafficLightEl ? trafficLightEl.value : 0;
-      const category = document.getElementById('category').value;
-      const additional = document.getElementById('additional').value;
-      const private = document.getElementById('private').checked ? 1 : 0;
-
-      const formData = {
-        sha: '',
-        filename: '',
-        url: '',
-        lines: '',
-        title,
-        comment,
-        priority: Number(priority),
-        category,
-        additional,
-        private: Number(private),
-        code: '',
-      };
-
-      vscode.postMessage({
-        command: 'submit',
-        text: JSON.stringify(formData),
       });
-    }
 
-    function cancel() {
-      vscode.postMessage({
-        command: 'cancel',
-        text: 'cancel',
-      });
-    }
+      const KEYCODE_ENTER = 13;
+      const KEYCODE_ESC = 27;
+      const KEYCODE_DELETE = 46;
 
-    function deleteComment() {
-      vscode.postMessage({
-        command: 'delete',
-        text: 'delete',
-      });
-    }
-  </script>
+      // 快捷键监听
+      document.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.ctrlKey && !event.shiftKey && !event.altKey) {
+            switch (event.keyCode) {
+              case KEYCODE_ENTER:
+                // Ctrl+回车：验证并提交注释
+                if (!document.getElementById('add').disabled) {
+                  event.stopPropagation();
+                  addNote();
+                }
+                break;
+
+              case KEYCODE_ESC:
+                // Ctrl+Esc：取消注释
+                cancel();
+                break;
+
+              case KEYCODE_DELETE:
+                // Ctrl+Delete：删除注释
+                deleteComment();
+                break;
+            }
+          }
+        },
+        false,
+      );
+
+      // 自动聚焦到描述文本框
+      document.getElementById('comment').focus();
+
+      // 提交注释
+      function addNote() {
+        const title = document.getElementById('title').value;
+        const comment = document.getElementById('comment').value;
+        const trafficLightEl = document.querySelector('input[name=traffic-light-color]:checked');
+        const priority = trafficLightEl ? trafficLightEl.value : 0;
+        const category = document.getElementById('category').value;
+        const additional = document.getElementById('additional').value;
+        const private = document.getElementById('private').checked ? 1 : 0;
+
+        const formData = {
+          sha: '',
+          filename: '',
+          url: '',
+          lines: '',
+          title,
+          comment,
+          priority: Number(priority),
+          category,
+          additional,
+          private: Number(private),
+          code: '',
+        };
+
+        vscode.postMessage({
+          command: 'submit',
+          text: JSON.stringify(formData),
+        });
+      }
+
+      // 取消操作
+      function cancel() {
+        vscode.postMessage({
+          command: 'cancel',
+          text: 'cancel',
+        });
+      }
+
+      // 删除注释
+      function deleteComment() {
+        vscode.postMessage({
+          command: 'delete',
+          text: 'delete',
+        });
+      }
+    </script>
+  </body>
 </html>

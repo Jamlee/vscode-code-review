@@ -27,6 +27,7 @@ import { CommentListEntry } from './comment-list-entry';
 import { ImportFactory, ConflictMode } from './import-factory';
 import { Decorations } from './utils/decoration-utils';
 import { CommentLensProvider } from './comment-lens-provider';
+import { convertWinPathStyleToLinux } from './utils/storage-utils';
 
 const checkForCodeReviewFile = (fileName: string) => {
   commands.executeCommand('setContext', 'codeReview:displayCodeReviewExplorer', fs.existsSync(fileName));
@@ -189,7 +190,8 @@ export class WorkspaceContext {
   }
 
   updateReviewCommentService() {
-    this.commentService = new ReviewCommentService(this.generator.absoluteReviewFilePath, this.workspaceRoot);
+    let rcFilePath = convertWinPathStyleToLinux(this.generator.absoluteReviewFilePath);
+    this.commentService = new ReviewCommentService(rcFilePath, this.workspaceRoot);
   }
 
   updateCommentsProvider() {

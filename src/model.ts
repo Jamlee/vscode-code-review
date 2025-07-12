@@ -1,6 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { stringify } from 'csv-stringify/sync';
+
 import { escapeDoubleQuotesForCsv, escapeEndOfLineForCsv, unescapeEndOfLineFromCsv } from './utils/workspace-util';
+import { convertLinuxPathStyleToCurrOS, convertWinPathStyleToLinux } from './utils/storage-utils';
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 // See detailed instructions in model.md
@@ -50,6 +53,8 @@ export function createCommentFromObject(object: any | CsvEntry): CsvEntry {
   }
   const comment = JSON.parse(object) as CsvEntry;
   comment.id = CsvStructure.getDefaultValue('id')!;
+  comment.filename = convertLinuxPathStyleToCurrOS(comment.filename);
+
   return comment;
 }
 
@@ -103,6 +108,7 @@ export class CsvStructure {
     ['additional', (additional: any) => (additional ? escapeDoubleQuotesForCsv(additional) : '')],
     ['category', (category: any) => category || ''],
     ['private', (priv: any) => priv || 0],
+    ['filename', (filename: any) => convertWinPathStyleToLinux(filename) || ''],
   ]);
 
   /**
@@ -159,10 +165,10 @@ export class CsvStructure {
     for (const property of CsvStructure.headers) {
       let value = dict[property];
       value = CsvStructure.serializers.get(property)?.(dict[property]) ?? value;
-      columns.push(`"${value ?? ''}"`);
+      columns.push(value);
     }
 
-    return columns.join(CsvStructure.separator);
+    return stringify([columns], { delimiter: this.separator });
   }
 
   /**

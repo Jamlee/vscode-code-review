@@ -1,5 +1,6 @@
 import * as fs from 'fs';
-import { EOL } from 'os';
+
+export const EOL = '\n';
 
 /**
  * Keep only valid lines for storage
@@ -88,4 +89,28 @@ export function setCsvFileContent(pathToFile: string, fileContent: string): bool
     console.log('Error writing content of file', pathToFile, error);
     return false;
   }
+}
+
+export function convertWinPathStyleToLinux(path: string): string {
+  // 无论当前系统是什么，都强制将 Windows 路径转换为 Linux 风格
+  // 1. 将反斜杠 \ 转换为斜杠 /
+  path = path.replace(/\\/g, '/');
+  // 2. 处理重复斜杠（如果有）
+  path = path.replace(/\/\/+/g, '/');
+  return path;
+}
+
+export function convertLinuxPathStyleToCurrOS(path: string): string {
+  // 检测操作系统类型
+  const isWindows = process.platform === 'win32';
+
+  if (isWindows) {
+    // 转换斜杠为反斜杠
+    path = path.replace(/\//g, '\\');
+    // 处理重复反斜杠（连续多个 \ 转换为单个 \）
+    path = path.replace(/\\\\+/g, '\\');
+  }
+
+  // 对于非 Windows 系统，直接返回原路径（Linux/macOS 已使用正确的 /）
+  return path;
 }

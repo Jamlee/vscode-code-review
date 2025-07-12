@@ -1,4 +1,5 @@
 import { window, ViewColumn, ExtensionContext, workspace, Range, WebviewPanel, Uri, TextEditor } from 'vscode';
+import handlebars from 'handlebars';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -74,7 +75,7 @@ export class WebViewComponent {
     const decoration = colorizedBackgroundDecoration(selections, editor, this.highlightDecorationColor);
 
     // initialize new web tab
-    const panel = this.showPanel('Edit code review comment', editor.document.fileName);
+    const panel = this.showPanel('编辑代码评审注释', editor.document.fileName);
     // const pathToHtml = Uri.file(path.join(this.context.extensionPath, 'src', 'webview.html'));
     // const pathUri = pathToHtml.with({ scheme: 'vscode-resource' });
     // panel.webview.html = fs.readFileSync(pathUri.fsPath, 'utf8');
@@ -136,7 +137,7 @@ export class WebViewComponent {
     const editor = this.getWorkingEditor();
     const decoration = colorizedBackgroundDecoration(getSelectionRanges(editor), editor, this.highlightDecorationColor);
 
-    const panel = this.showPanel('Add code review comment', editor.document.fileName);
+    const panel = this.showPanel('添加代码评审注释', editor.document.fileName);
 
     // Handle messages from the webview
     panel.webview.onDidReceiveMessage(
@@ -175,15 +176,40 @@ export class WebViewComponent {
     );
   }
 
-  getWebviewContent(fileName: string): string {
-    let selectListString = this.categories.reduce((current, category) => {
-      return current + `<option value="${category}">${category}</option>`;
-    }, '');
+  getWebviewContent(filePath: string): string {
+    let options = [];
+    for (let category of this.categories) {
+      let option = `<option value="${category}">${category}</option>`;
+      if (category.toLowerCase() === 'code walkthrough') {
+        option = `<option value="${category}" selected>${category}</option>`;
+      }
+      options.push(option);
+    }
+
+    // 获取选项
+    let categories = options.join('');
+
+    // 获取 filename
+    let filename = this.removeWorkspacePrefix(filePath);
     const uri = Uri.joinPath(this.context.extensionUri, 'dist', 'webview.html');
     const pathUri = uri.with({ scheme: 'vscode-resource' });
-    return fs
-      .readFileSync(pathUri.fsPath, 'utf8')
-      .replace('SELECT_LIST_STRING', selectListString)
-      .replace('FILENAME', path.basename(fileName));
+    const htmlContent = fs.readFileSync(pathUri.fsPath, 'utf8');
+
+    return handlebars.compile(htmlContent)({
+      filename,
+      categories,
+    });
+  }
+
+  removeWorkspacePrefix(filePath: string) {
+    // 获取当前工作区根目录
+    const workspaceFolder = workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+      return filePath; // 没有打开工作区时返回原始路径
+    }
+
+    // 将绝对路径转换为相对于工作区的路径
+    const relativePath = workspace.asRelativePath(filePath);
+    return relativePath;
   }
 }

@@ -16,7 +16,7 @@ import {
 } from 'vscode';
 
 import { parseFile } from '@fast-csv/parse';
-import { EOL } from 'os';
+import { EOL } from './utils/storage-utils';
 import { encode, decode } from 'js-base64';
 
 import {
