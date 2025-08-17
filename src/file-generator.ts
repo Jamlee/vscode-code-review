@@ -69,7 +69,7 @@ export class FileGenerator {
         // 默认放置文件在 .vscode 目录
         const dirname = path.dirname(this.absoluteReviewFilePath);
         if (dirname.endsWith('.vscode')) {
-          fs.mkdirSync(dirname);
+          fs.mkdirSync(dirname, { recursive: true });
         }
 
         fs.writeFileSync(this.absoluteReviewFilePath, `${CsvStructure.headerLine}${EOL}`);
