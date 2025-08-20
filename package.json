@@ -519,6 +519,7 @@
   "dependencies": {
     "@fast-csv/parse": "^4.3.6",
     "common-tags": "^1.8.2",
+    "csv-stringify": "^6.6.0",
     "git-commit-id": "^2.0.1",
     "handlebars": "^4.7.7",
     "js-base64": "^3.7.2",

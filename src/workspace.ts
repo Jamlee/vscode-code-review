@@ -116,7 +116,11 @@ export class WorkspaceContext {
     this.decorations.clear(editor);
 
     this.exportFactory.getFilesContainingComments().then((fileEntries) => {
-      const matchingFile = fileEntries.find((file) => editor.document.fileName.endsWith(file.label));
+      const matchingFile = fileEntries.find((file) => {
+        let filename = editor.document.fileName;
+        filename = filename.split(path.sep).join('/');
+        return filename.endsWith(file.label);
+      });
       if (matchingFile) {
         // iterate over all comments associated with this file
         this.exportFactory.getComments(matchingFile).then((comments) => {

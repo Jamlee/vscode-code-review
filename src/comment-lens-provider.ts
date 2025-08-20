@@ -3,6 +3,7 @@ import { ExportFactory } from './export-factory';
 import { ReviewFileExportSection } from './interfaces';
 import { CsvEntry } from './model';
 import { symbolForPriority } from './utils/editor-utils';
+import * as path from 'path';
 import { rangesFromStringDefinition } from './utils/workspace-util';
 
 export class CommentLensProvider implements CodeLensProvider {
@@ -12,7 +13,8 @@ export class CommentLensProvider implements CodeLensProvider {
     return this.exportFactory.getFilesContainingComments().then((filesWithComments) => {
       const codeLenses: CodeLens[] = [];
       filesWithComments.forEach((el) => {
-        if (document.fileName.endsWith(el.data.group)) {
+        const normalizedDocPath = document.fileName.split(path.sep).join('/');
+        if (normalizedDocPath.endsWith(el.data.group)) {
           el.data.lines.forEach((csvEntry) => {
             const fileSection: ReviewFileExportSection = {
               group: csvEntry.filename,
